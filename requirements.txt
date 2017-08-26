@@ -1,0 +1,5 @@
+redis==2.10.6
+Flask==0.12.2
+flask-restplus==0.8.1
+gunicorn==19.7.1
+tornado==4.5.1
