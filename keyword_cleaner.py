@@ -25,7 +25,7 @@ def _clean(keyword):
     '''
     # 3) Remove Tab found within the keyword strings. replace with space
     '''
-    keyword = re.sub(r'[\t]', ' ', keyword)
+    keyword = re.sub(r'\t+', ' ', keyword)
     '''
     4) Remove any string that matches the following.. replace with nothing
     site:
@@ -79,3 +79,7 @@ class KeywordCleaner(object):
     @staticmethod
     def process(keyword):
         return _process(keyword)
+
+    @staticmethod
+    def clean(keyword):
+        return _clean(keyword)

@@ -1,5 +1,5 @@
+import codecs
 import os
-import shutil
 import time
 from datetime import datetime
 from multiprocessing import Process
@@ -43,7 +43,7 @@ def keyword_batch_clean():
 
     keywords = []
     try:
-        with open(file_text_path, 'r') as f:
+        with codecs.open(file_text_path, 'r', encoding='utf-8') as f:
             for line in f:
                 keywords.append(line[:-1])
 
@@ -119,7 +119,7 @@ def _process_job(job_id, keywords, output_file, upload_folder):
     kw_cleaner = KeywordCleaner(job_id)
     result = kw_cleaner.process_batch(keywords)
     try:
-        with open(os.path.join(upload_folder, output_file), 'w') as f:
+        with codecs.open(os.path.join(upload_folder, output_file), 'w', encoding='utf-8') as f:
             columns = ('Original Input', 'Cleaned Output', 'Character Count', 'Word Count')
             f.write('\t'.join(columns) + '\n')
             for item in result:
