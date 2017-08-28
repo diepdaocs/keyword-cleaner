@@ -54,7 +54,7 @@ def keyword_batch_clean():
         return render_template('message.html', message='ERROR: Failed to read file "%s" - %s'
                                                        % (file_text.filename, e.message))
 
-    output_file = '%s_result-for-job_%s.csv' % (file_text_name, job_id)
+    output_file = '%s_result-for-job_%s.txt' % (file_text_name, job_id)
     process = Process(target=_process_job, args=(job_id, keywords, output_file, app.config['UPLOAD_FOLDER']))
     process.start()
 
@@ -99,13 +99,9 @@ def update_jobs():
         jb['start'] = datetime.fromtimestamp(float(jb['start'])).strftime('%Y-%m-%d %H:%M:%S')
         jb['complete'] = round(float(jb.get('progress', 0)) / float(jb['size']) * 100, 0) if float(jb['size']) else 0
         jb['finish'] = int(jb['finish']) == 1
+        jb['user_file'] = build_user_filename(jb['file'])
+
     return jsonify(jobs=jobs)
-
-
-@app.route('/job/<job_id>')
-def job_info(job_id):
-    output_file = 'result-for-job_%s.csv' % job_id
-    return render_template('job.html', job_id=job_id, output_file=output_file)
 
 
 def _process_job(job_id, keywords, output_file, upload_folder):
@@ -131,11 +127,10 @@ def _process_job(job_id, keywords, output_file, upload_folder):
 
 @app.route('/download/<filename>')
 def download_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+    print filename
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True,
+                               attachment_filename=build_user_filename(filename))
 
 
-@app.route('/get-progress/<job_id>')
-def get_progress(job_id=None):
-    redis = RedisClient.get_instance()
-    jb = redis.hgetall(job_id) or {}
-    return jsonify(total=jb.get('size') or 0, finished=jb.get('progress') or 0)
+def build_user_filename(filename):
+    return ''.join(filename.split('_')[:-2]) + '-cleaned.txt'

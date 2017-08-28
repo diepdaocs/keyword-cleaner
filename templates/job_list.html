@@ -33,7 +33,7 @@
                 job_html += '	</div>';
             } else {
                 // Show download button
-                job_html += '	<form role="form" class="form-inline" action="{0}" method="GET" enctype="multipart/form-data"> <i>{1}</i> <input type="submit" value="Download" class="btn btn-success">'.format(file_url + job.file, job.file);
+                job_html += '	<form role="form" class="form-inline" action="{0}" method="GET" enctype="multipart/form-data"> <i>{1}</i> <input type="submit" value="Download" class="btn btn-success">'.format(file_url + job.file, job.user_file);
                 job_html += '	</form>';
             }
             job_html += '	<p class="list-group-item-text">Created at: {0}</p>'.format(job.start);
