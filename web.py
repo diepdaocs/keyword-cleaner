@@ -41,11 +41,9 @@ def keyword_batch_clean():
     with open(file_text_path, 'w') as f:
         file_text.save(f)
 
-    keywords = []
     try:
         with codecs.open(file_text_path, 'r', encoding='utf-8') as f:
-            for line in f:
-                keywords.append(line[:-1])
+	    keywords = f.read().splitlines()
 
     except UnicodeDecodeError, e:
         logger.exception(e)

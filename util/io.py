@@ -7,5 +7,6 @@ class RedisClient(object):
     @classmethod
     def get_instance(cls):
         if cls.__instance is None:
-            return StrictRedis(db=8)
+	    cls.__instance = StrictRedis(db=8)
+            return cls.__instance 
         return cls.__instance
