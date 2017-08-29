@@ -133,4 +133,4 @@ def download_file(filename):
 
 
 def build_user_filename(filename):
-    return ''.join(filename.split('_')[:-2]) + '-cleaned.txt'
+    return '_'.join(filename.split('_')[:-2]) + '-cleaned.txt'
