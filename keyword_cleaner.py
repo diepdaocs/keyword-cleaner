@@ -21,7 +21,7 @@ def _clean(keyword):
     # ©2012
     # • silver
     '''
-    keyword = re.sub(r'[^\x00-\x7F]+', ' ', keyword)
+    keyword = re.sub(r'[©•]+', ' ', keyword)
     '''
     # 3) Remove Tab found within the keyword strings. replace with space
     '''

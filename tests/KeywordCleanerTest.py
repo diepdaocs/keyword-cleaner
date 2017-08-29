@@ -34,10 +34,13 @@ class MyTestCase(unittest.TestCase):
             # Rule 1: Remove any of the following characters.. Replace with a space
             ("!=shoes'! = ? @ % ^ *; ~ `, (){} <> | [] \" - . ", 'shoes'),
             ("!=shoes'! = ? @ % ^ *; ~ `, (){}big@size<> | [] \" - . ", 'shoes big size'),
-
-            # Rule 2: Remove all non-ascii characters. replace with space
             ('"blue shoes"', 'blue shoes'),
             ('[black shoes]', 'black shoes'),
+
+            # Rule 2: Remove all non-ascii characters. replace with space
+            ('[blue shoes] 뉴에그', 'blue shoes 뉴에그'),
+            ('[blue shoes] 新蛋', 'blue shoes 新蛋'),
+            ('contraseña', 'contraseña'),
 
             # Rule 3: Remove Tab found within the keyword strings. replace with space
             ('lovely        shoes   ', 'lovely shoes'),
