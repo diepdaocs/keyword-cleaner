@@ -19,6 +19,7 @@ app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(os.path.realpath(__fi
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 1024  # Accept max 1GB file
 
 logger = get_logger(__name__)
+JOB_PREFIX = 'kwc'
 
 
 @app.route('/')
@@ -28,7 +29,7 @@ def index():
 
 @app.route('/keyword/batch-clean', methods=['POST'])
 def keyword_batch_clean():
-    job_id = str(uuid4())
+    job_id = JOB_PREFIX + '-' + str(uuid4())
     # Get form parameters
 
     file_text = request.files.get('file_text')
@@ -43,7 +44,7 @@ def keyword_batch_clean():
 
     try:
         with codecs.open(file_text_path, 'r', encoding='utf-8') as f:
-	    keywords = f.read().splitlines()
+            keywords = f.read().splitlines()
 
     except UnicodeDecodeError, e:
         logger.exception(e)
@@ -76,7 +77,8 @@ def job_list():
 def clean_job():
     # Clear redis
     redis = RedisClient().get_instance()
-    redis.flushdb()
+    for key in redis.keys(JOB_PREFIX + '-*'):
+        redis.delete(key)
     # Remove old files
     upload_dir = app.config['UPLOAD_FOLDER']
     for f in os.listdir(upload_dir):
@@ -89,7 +91,7 @@ def clean_job():
 def update_jobs():
     redis = RedisClient.get_instance()
     jobs = []
-    for h in redis.keys():
+    for h in redis.keys(JOB_PREFIX + '-*'):
         jb = redis.hgetall(h)
         jb['id'] = h
         jobs.append(jb)

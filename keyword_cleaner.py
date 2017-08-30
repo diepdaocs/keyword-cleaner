@@ -23,7 +23,7 @@ def _clean(keyword, replace_chars):
     # ©2012
     # • silver
     '''
-    keyword = re.sub(r'[©•]+', ' ', keyword)
+    keyword = re.sub(r'[^\x00-\x7F]+', ' ', keyword)
     '''
     # 3) Remove Tab found within the keyword strings. replace with space
     '''

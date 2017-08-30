@@ -1,3 +1,4 @@
+import re
 from flask import request
 from flask_restplus import Api, Resource
 
@@ -44,7 +45,7 @@ class ReplaceCharacters(Resource):
     Replace Characters
     """
     @api.doc(params={'chars': 'Characters (multiple)'})
-    @api.doc(params={'replace_char': 'Replace character (single)'})
+    @api.doc(params={'replace_char': 'Replace character (single), use `\s` for space when call from this UI'})
     def post(self):
         """
         Add replace characters
@@ -57,7 +58,11 @@ class ReplaceCharacters(Resource):
             if not chars:
                 raise ValueError('Parameter `chars` is empty')
 
-            kw_cleaner.add_replace_chars(chars, request.values.get('replace_char', ''))
+            replace_char = request.values.get('replace_char', '')
+            if '\s' in replace_char:
+                replace_char = replace_char.replace('\s', ' ')
+
+            kw_cleaner.add_replace_chars(chars, replace_char)
         except Exception as e:
             result['ok'] = False
             result['message'] = e.message
@@ -82,7 +87,7 @@ class ReplaceCharacters(Resource):
 
         return result, 200
 
-    @api.doc(params={'chars': 'Characters to be removed'})
+    @api.doc(params={'chars': 'Characters to be removed, use `\s` for space when call from this UI'})
     def delete(self):
         """
         Delete replace characters
@@ -94,6 +99,9 @@ class ReplaceCharacters(Resource):
             chars = request.values.get('chars')
             if not chars:
                 raise ValueError('Parameter `chars` is empty')
+            if '\s' in chars:
+                chars = chars.replace('\s', ' ')
+
             kw_cleaner.remove_replace_chars(chars)
         except Exception as e:
             result['ok'] = False
