@@ -5,7 +5,7 @@ from multiprocessing import Pool, cpu_count
 from util.io import RedisClient
 
 
-def _clean(keyword):
+def _clean(keyword, replace_chars):
     """
     Clean up keywords
     :param keyword: keyword
@@ -15,7 +15,9 @@ def _clean(keyword):
     1) Remove any of the following characters.. Replace with a space
     ! = ? @ % ^ *; ~ `, (){} <> | [] " - .
     '''
-    keyword = re.sub(r'[!=?@%^*;~`,(){}<>|\[\]\'"\-.]', ' ', keyword)
+    for char, replace in replace_chars.items():
+        keyword = keyword.replace(char, replace)
+
     '''
     # 2) Remove all non-ascii characters. replace with space
     # ©2012
@@ -46,9 +48,9 @@ def _clean(keyword):
     return keyword
 
 
-def _process(keyword):
+def _process(keyword, replace_chars):
     original = keyword
-    cleaned = _clean(keyword)
+    cleaned = _clean(keyword, replace_chars)
     return {
         'original': original,
         'cleaned': cleaned,
@@ -57,29 +59,42 @@ def _process(keyword):
     }
 
 
-def _process_with_tracking((keyword, job_id)):
+def _process_with_tracking((keyword, replace_chars, job_id)):
     redis = RedisClient().get_instance()
-    result = _process(keyword)
+    result = _process(keyword, replace_chars)
     redis.hincrby(job_id, 'progress')
     return result
 
 
 class KeywordCleaner(object):
+    _REDIS_REMOVE_CHAR_KEY = 'keyword-cleaning:removed-char'
+
     def __init__(self, job_id=None):
         self.job_id = job_id
+        self.redis = RedisClient.get_instance()
+        self.add_replace_chars('!=?@%^*;~`,(){}<>|[]\'"-.', ' ')
 
     def process_batch(self, keywords):
         pool = Pool(cpu_count() * 2)
-        tasks = ((k, self.job_id) for k in keywords)
+        replace_chars = self.get_replace_chars()
+        tasks = ((k, replace_chars, self.job_id) for k in keywords)
         result = pool.map(_process_with_tracking, tasks)
         pool.close()
         pool.terminate()
         return result
 
-    @staticmethod
-    def process(keyword):
-        return _process(keyword)
+    def process(self, keyword):
+        return _process(keyword, self.get_replace_chars())
 
-    @staticmethod
-    def clean(keyword):
-        return _clean(keyword)
+    def clean(self, keyword):
+        return _clean(keyword, self.get_replace_chars())
+
+    def add_replace_chars(self, remove_chars, replace_char):
+        for char in remove_chars:
+            self.redis.hset(self._REDIS_REMOVE_CHAR_KEY, char, replace_char)
+
+    def get_replace_chars(self):
+        return self.redis.hgetall(self._REDIS_REMOVE_CHAR_KEY)
+
+    def remove_replace_chars(self, chars):
+        self.redis.hdel(self._REDIS_REMOVE_CHAR_KEY, *chars)

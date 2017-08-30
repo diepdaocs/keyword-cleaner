@@ -7,6 +7,7 @@ from keyword_cleaner import KeywordCleaner
 api = Api(app, doc='/doc/', version='1.0', title='Keyword Cleaning')
 
 kw_cleaner = KeywordCleaner()
+
 ns = api.namespace('keyword', 'Keyword Cleaning')
 
 
@@ -29,7 +30,74 @@ class KeywordCleaner(Resource):
             result['keyword'] = kw_cleaner.process(request.values.get('keyword'))
         except Exception as e:
             result['ok'] = False
-            result['message'] = e
+            result['message'] = e.message
+            return result, 500
+
+        return result, 200
+
+ns_char = api.namespace('replace', 'Replace Characters')
+
+
+@ns_char.route('/character')
+class ReplaceCharacters(Resource):
+    """
+    Replace Characters
+    """
+    @api.doc(params={'chars': 'Characters (multiple)'})
+    @api.doc(params={'replace_char': 'Replace character (single)'})
+    def post(self):
+        """
+        Add replace characters
+        """
+        result = {
+            'ok': True
+        }
+        try:
+            chars = request.values.get('chars')
+            if not chars:
+                raise ValueError('Parameter `chars` is empty')
+
+            kw_cleaner.add_replace_chars(chars, request.values.get('replace_char', ''))
+        except Exception as e:
+            result['ok'] = False
+            result['message'] = e.message
+            return result, 500
+
+        return result, 200
+
+    def get(self):
+        """
+        Get replace characters
+        """
+        result = {
+            'ok': True,
+            'replace_chars': {}
+        }
+        try:
+            result['replace_chars'] = kw_cleaner.get_replace_chars()
+        except Exception as e:
+            result['ok'] = False
+            result['message'] = e.message
+            return result, 500
+
+        return result, 200
+
+    @api.doc(params={'chars': 'Characters to be removed'})
+    def delete(self):
+        """
+        Delete replace characters
+        """
+        result = {
+            'ok': True
+        }
+        try:
+            chars = request.values.get('chars')
+            if not chars:
+                raise ValueError('Parameter `chars` is empty')
+            kw_cleaner.remove_replace_chars(chars)
+        except Exception as e:
+            result['ok'] = False
+            result['message'] = e.message
             return result, 500
 
         return result, 200
