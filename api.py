@@ -4,6 +4,9 @@ from flask_restplus import Api, Resource
 
 from app import app
 from keyword_cleaner import KeywordCleaner
+from util.log import get_logger
+
+logger = get_logger('KeywordCleaningAPI')
 
 api = Api(app, doc='/doc/', version='1.0', title='Keyword Cleaning')
 
@@ -30,6 +33,7 @@ class KeywordCleaner(Resource):
         try:
             result['keyword'] = kw_cleaner.process(request.values.get('keyword'))
         except Exception as e:
+            logger.exception(e)
             result['ok'] = False
             result['message'] = e.message
             return result, 500
@@ -64,6 +68,7 @@ class ReplaceCharacters(Resource):
 
             kw_cleaner.add_replace_chars(chars, replace_char)
         except Exception as e:
+            logger.exception(e)
             result['ok'] = False
             result['message'] = e.message
             return result, 500
@@ -81,6 +86,7 @@ class ReplaceCharacters(Resource):
         try:
             result['replace_chars'] = kw_cleaner.get_replace_chars()
         except Exception as e:
+            logger.exception(e)
             result['ok'] = False
             result['message'] = e.message
             return result, 500
@@ -104,6 +110,7 @@ class ReplaceCharacters(Resource):
 
             kw_cleaner.remove_replace_chars(chars)
         except Exception as e:
+            logger.exception(e)
             result['ok'] = False
             result['message'] = e.message
             return result, 500

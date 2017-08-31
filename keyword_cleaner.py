@@ -16,14 +16,14 @@ def _clean(keyword, replace_chars):
     ! = ? @ % ^ *; ~ `, (){} <> | [] " - .
     '''
     for char, replace in replace_chars.items():
-        keyword = keyword.replace(char, replace)
+        keyword = keyword.replace(unicode(char, encoding='utf-8'), replace)
 
     '''
     # 2) Remove all non-ascii characters. replace with space
     # ©2012
     # • silver
     '''
-    keyword = re.sub(r'[^\x00-\x7F]+', ' ', keyword)
+    keyword = re.sub(u'[©•]+', ' ', keyword)
     '''
     # 3) Remove Tab found within the keyword strings. replace with space
     '''

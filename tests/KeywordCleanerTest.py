@@ -13,8 +13,8 @@ class MyTestCase(unittest.TestCase):
             ('"blue shoes"', 'blue shoes', 10, 2),
             ('[black shoes]', 'black shoes', 11, 2),
             ('green      shoes', 'green shoes', 11, 2),
-            ('©2012', '2012', 4, 1),
-            ('• silver', 'silver', 6, 1)
+            (u'©2012', '2012', 4, 1),
+            (u'• silver', 'silver', 6, 1)
         )
         for keyword, exp_cleaned_keyword, exp_char_count, exp_word_count in test_cases:
             stats = self.kw_cleaner.process(keyword)
